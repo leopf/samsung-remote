@@ -1,0 +1,58 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #000;
+}
+
+@font-face {
+    font-family: "Material-Symbols";
+    font-style: normal;
+    font-weight: 100 700;
+    src: url(./material-symbols.woff2) format("woff2");
+}
+
+.icon {
+    font-family: Material-Symbols;
+    font-variation-settings: "FILL" 1;
+    font-size: 1.2em;
+    line-height: 1em;
+}
+
+.remote-main-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.remote-button {
+    background-color: #fff;
+    color: #000;
+    border-radius: 1rem;
+    font-size: 1.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+.remote-button--active {
+    background: #aaa;
+}
+
+.remote-button--small {
+    font-size: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+}
+
+.remote-inline-cell {
+    grid-column: 1 / span 3;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}

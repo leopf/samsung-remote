@@ -1,0 +1,33 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools"]
+
+[project]
+name = "samsung-remote"
+version = "0.1.0"
+dependencies = ["uvicorn[standard]", "pydantic>=2.9.0", "rxxxt>=0.3.0"]
+
+[project.optional-dependencies]
+dev = ["ruff", "pytest"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["samsung_remote*"]
+
+[tool.ruff]
+line-length = 150
+indent-width = 2
+target-version = "py313"
+preview = true
+
+lint.select = ["F", "W293", "W291", "W191", "W292", "W391", "E703"]
+
+include = [
+    "samsung_remote/*.py",
+    "tests/**.py",
+    "extra/**.py",
+    "examples/**.py",
+]
+
+[tool.setuptools.package-data]
+"samsung_remote" = ["assets/*"]
