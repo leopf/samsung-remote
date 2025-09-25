@@ -1,48 +1,11 @@
 from typing import Annotated
 from rxxxt.asgi import Composer, HTTPContext, http_handler, routed_handler
 from rxxxt import App, Component, El, PageBuilder, WithRegistered, event_handler, local_state, class_map, Element
-from samsung_remote.utils import samsung_tv_connect
-import asyncio, uvicorn, logging, websockets, os, json, importlib.resources
+from samsung_remote.api import RemoteAPI
+import asyncio, uvicorn, logging, os, importlib.resources
 
-logging.basicConfig(level=logging.DEBUG)
-
-class RemoteAPI:
-  BUTTON_CODES: list[tuple[str, str]] = [
-    ("KEY_MENU", "MENU"),
-    ("KEY_LEFT", "LEFT"),
-    ("KEY_RIGHT", "RIGHT"),
-  ]
-
-  def __init__(self, hostname: str) -> None:
-    self._hostname = hostname
-    self._command_lock = asyncio.Lock()
-    self._connection: websockets.ClientConnection | None = None
-
-  @property
-  def connected(self):
-    return self._connection is not None and self._connection.close_code is None
-
-  async def send_remote_code(self, code: str):
-    async with self._command_lock:
-      payload = json.dumps({
-        "method": "ms.remote.control",
-        "params": {
-          "Cmd": "Click",
-          "DataOfCmd": code,
-          "Option": "false",
-          "TypeOfRemote": "SendRemoteKey"
-        }
-      })
-      logging.debug(f"sending remote code: {code}")
-      connection = await self.ensure_connection()
-      await connection.send(payload)
-
-  async def ensure_connection(self):
-    if not self.connected:
-      self._connection = await samsung_tv_connect("webremote", self._hostname, None)
-      _ = await self._connection.recv()
-    if self._connection is None: raise RuntimeError("Failed to connect!")
-    return self._connection
+if int(os.getenv("DEBUG", "0")):
+  logging.basicConfig(level=logging.DEBUG)
 
 def icon(name: str):
   return El.span(_class="icon", content=[name])
@@ -81,7 +44,7 @@ class Remote(Component):
       onclick=self.send_key.bind(code=code), content=[ label ])
 
   async def on_init(self) -> None:
-    asyncio.create_task(self.remote_api.ensure_connection())
+    _ = asyncio.create_task(self.remote_api.ensure_connection())
     self.context.add_window_event("keydown", self.on_key_down)
 
   def render(self):
@@ -119,7 +82,11 @@ class Remote(Component):
 
 
 async def run_web():
-  remote_api = RemoteAPI(os.getenv("WS_CLIENT_HOST"))
+  tv_host = os.getenv("TV_HOST")
+  tv_token = os.getenv("TV_TOKEN")
+  if tv_host is None: raise ValueError("TV_HOST environment variable not set!")
+
+  remote_api = RemoteAPI(tv_host, tv_token)
 
   with importlib.resources.path("samsung_remote.assets") as assets_dir:
     assets_dir_abs = str(assets_dir.absolute())

@@ -50,9 +50,7 @@ body {
 
 .remote-inline-cell {
     grid-column: 1 / span 3;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     gap: 0.5rem;
-    flex-wrap: wrap;
 }
